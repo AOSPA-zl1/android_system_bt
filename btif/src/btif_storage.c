@@ -1407,8 +1407,8 @@ bt_status_t btif_storage_load_bonded_hid_info(void)
         {
             if(btif_config_get_int(name, "HidAttrMask", &value))
             {
-                btif_storage_remove_hid_info(&bd_addr);
                 string_to_bdaddr(name, &bd_addr);
+                btif_storage_remove_hid_info(&bd_addr);
             }
         }
     }
