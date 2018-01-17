@@ -155,7 +155,7 @@ static void lst_free_cb (void * rpt_id)
 
     APPL_TRACE_DEBUG("%s: freeing report id %d",
         __func__, (int)*p_rpt_id);
-    free(rpt_id);
+    osi_free(rpt_id);
     rpt_id = NULL;
 }
 
@@ -284,9 +284,16 @@ static int uhid_read_event(btif_hh_device_t *p_dev)
         }
         APPL_TRACE_DEBUG("UHID_SET_REPORT: Report type = %d, report_size = %d"
                             ,ev.u.set_report.rtype, ev.u.set_report.size);
+        UINT32 *p_set_rpt_id = (UINT32 *)osi_malloc(sizeof(UINT32));
+        if (!p_set_rpt_id) {
+          APPL_TRACE_ERROR("%s unable to allocate p_set_rpt_id", __func__);
+          return -ENOMEM;
+        }
+        *p_set_rpt_id = ev.u.set_report.id;
         if (p_dev->set_rpt_id_list) {
-            if (!list_append(p_dev->set_rpt_id_list, (void *)&ev.u.set_report.id)) {
+            if (!list_append(p_dev->set_rpt_id_list, (void *)p_set_rpt_id)) {
                 APPL_TRACE_ERROR("%s: list_append failed", __func__)
+                osi_free(p_set_rpt_id);
                 return -EFAULT;
             }
         }
